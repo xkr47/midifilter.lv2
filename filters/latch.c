@@ -7,7 +7,7 @@ MFD_FILTER(latch)
 	, TTF_IPORT(0, "channelf", "Filter Channel", 0, 16, 0,
 			PORTENUMZ("Any")
 			DOC_CHANF)
-	, TTF_IPORT( 1, "idle",  "Idle [sec]", 0.0, 10.0,  1.0, units:unit units:s ;
+	, TTF_IPORT( 1, "threshold",  "New chord threshold [sec]", 0.0, 10.0,  1.0, units:unit units:s ;
 			rdfs:comment "If this much time has passed when key is pressed, a new chord is started.")
 	; rdfs:comment "This filter delays note-off messages until new chord is started. Current chord ends when idle time passes without keypresses."
 	.
