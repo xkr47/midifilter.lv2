@@ -40,11 +40,13 @@ filter_midi_latch(MidiFilter* self,
 		return;
 	}
 
-	const uint32_t lastTme = (uint32_t) self->memI[0];
+	const uint32_t lastT = (uint32_t) self->memI[0];
 
-	printf("%u %u\n", tme, self->pos_bbt);
-
-	if (tme - lastTme > self->samplerate * RAIL((*self->cfg[1]), 0, 120)) {
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	uint32_t t = tv.tv_sec * 1000000 + tv.tv_usec;
+	
+	if (t - lastT > 1000000 * RAIL((*self->cfg[1]), 0, 120)) {
 		// shut down all current notes
 		int k;
 		for (k=0; k < 127; ++k) {
@@ -59,12 +61,18 @@ filter_midi_latch(MidiFilter* self,
 		}
 	}
 
-	self->memI[0] = tme;
+	self->memI[0] = (int) t;
 
-	//if (!self->memCI[chn][key]) {
-		forge_midimessage(self, tme, buffer, size);
-		self->memCI[chn][key] = 1;
-		//}
+	if (self->memCI[chn][key]) {
+		uint8_t buf[3];
+		buf[0] = MIDI_NOTEOFF | chn;
+		buf[1] = key;
+		buf[2] = 0;
+		forge_midimessage(self, tme, buf, 3);
+	}
+	forge_midimessage(self, tme, buffer, size);
+	self->memCI[chn][key] = 1;
+	       
 }
 
 static void filter_init_latch(MidiFilter* self) {
